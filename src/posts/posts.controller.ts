@@ -16,7 +16,12 @@ export class PostsController {
 
     @Get(':limit/:page')
     getAll_p(@Param() params){
-        return this.PostsService.getAll_p(params)
+        return this.PostsService.getAll_p(Number(params.page), Number(params.limit))
+    }
+
+    @Get()
+    getAll(){
+        return this.PostsService.getAll()
     }
 
     @Post('/postup')
@@ -26,7 +31,7 @@ export class PostsController {
 
     @Get(':id')
     getById(@Param() params){
-        return this.PostsService.getById(params)
+        return this.PostsService.getById(Number(params.id))
     }
 
     @Delete(':id')
@@ -36,7 +41,7 @@ export class PostsController {
 
     @Put(':id')
     updateById(@Param() params, @Body() UpdatePostDto: UpdatePostDto){
-        return this.PostsService.updateById(params, UpdatePostDto)
+        return this.PostsService.updateById(params.id, UpdatePostDto)
     }
     
 

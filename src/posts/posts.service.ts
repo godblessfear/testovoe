@@ -3,58 +3,58 @@ import { Param, Body } from '@nestjs/common/decorators';
 import { PrismaClient, Post } from '@prisma/client';
 import {UpdatePostDto} from './dto/update-posts.dto';
 import {PaginationPostDto} from './dto/pagination.dto';
+import {PrismaService} from '../prisma.service';
 
 @Injectable()
 export class PostsService {
 
-    async getAll_p(@Param() params){
-        const client = new PrismaClient();
-        await client.$connect();
-        const skip = params.limit * (params.page - 1)
-        const res = await client.post.findMany({skip: skip, take: Number(params.limit)})
-        return res;
+
+    constructor(private prisma: PrismaService) { }
+
+    async getAll_p(page: number, limit: number){
+        const skip = limit * (page - 1)
+        return await this.prisma.post.findMany({skip: skip, take: limit})
     }
 
     async getAll(){
-        const client = new PrismaClient();
-        await client.$connect();
-        const res = await client.post.findMany()
-        return res;
+        return await this.prisma.post.findMany()
     }
 
-    async getById(@Param() params){
-        const client = new PrismaClient();
-        await client.$connect();
-        const res = await client.post.findMany({ where: {id: Number(params.id)}})
-        return res;
+    async getById(id: number){
+        return await this.prisma.post.findMany({ where: {id: id}})
     }
 
     async createTenThounds(){
-        const client = new PrismaClient();
-        const array = []
-        for(let i = 1; i <= 10000; i++){
-            const container = {
-                title: `Title num: ${i}`,
-                description: `description num: ${i}`,
-            };
-            array.push(container);
+        try {
+            const array = []
+            for(let i = 1; i <= 10000; i++){
+                const container = {
+                    title: `Title num: ${i}`,
+                    description: `description num: ${i}`,
+                };
+                array.push(container);
+            }
+            await this.prisma.post.createMany({data: array})
+            return 'Done';
+        } catch (e) {
+            console.log(e)
         }
-        await client.$connect();
-        await client.post.createMany({data: array})
-        return 'Done';
     }
 
-    async deleteById(@Param() params){
-        const client = new PrismaClient();
-        await client.$connect();
-        const post = await client.post.delete({where: {id: Number(params.id)}})
-        return `Deleted post #${post.id}`
+    async deleteById(id: number){
+        try {
+            const post = await this.prisma.post.delete({where: {id: id}})
+            return `Deleted post #${post.id}`
+        } catch (e) {
+            console.log(e)
+        }
     }
 
-    async updateById(@Param() params, @Body() UpdatePostDto: UpdatePostDto){
-        const client = new PrismaClient();
-        await client.$connect();
-        const post = await client.post.update({where: {id: Number(params.id)}, data: { title: UpdatePostDto.title, description: UpdatePostDto.description}})
-        return post
+    async updateById(id: number, data: UpdatePostDto){
+        try {
+            return await this.prisma.post.update({where: {id: id}, data: { title: data.title, description: data.description}})
+        } catch (e) {
+            console.log(e)
+        }
     }
 }
