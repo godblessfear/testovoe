@@ -3,6 +3,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PrismaService } from './prisma.service';
 import { PostsModule } from './posts/posts.module';
+import { AuthController } from './auth/auth.controller';
+import { AuthModule } from './auth/auth.module';
 
 // import * as bcrypt from 'bcrypt';
 
@@ -17,6 +19,7 @@ import { PostsModule } from './posts/posts.module';
       rootPath: join(__dirname, '..', 'client'),
     }),
     PostsModule,
+    AuthModule,
     // CUSTOM MODULE IMPORT
     // ...
   ],
