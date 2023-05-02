@@ -26,10 +26,10 @@ export class PostsController {
         return this.PostsService.getAll()
     }
 
+    @UseGuards(AuthGuard)
     @Post('/postup')
     async createTenThounds(@User() user: object){
-        return user
-        //return this.PostsService.createTenThounds(req.user.id)
+        return this.PostsService.createTenThounds(user.id)
     }
 
     @Get(':id')
@@ -37,11 +37,13 @@ export class PostsController {
         return this.PostsService.getById(Number(params.id))
     }
 
+    @UseGuards(AuthGuard)
     @Delete(':id')
     deleteById(@Param() params){
         return this.PostsService.deleteById(params)
     }
 
+    @UseGuards(AuthGuard)
     @Put(':id')
     updateById(@Param() params, @Body() UpdatePostDto: UpdatePostDto){
         return this.PostsService.updateById(params.id, UpdatePostDto)

@@ -52,7 +52,7 @@ export class AuthService {
 
     private async generateToken(payload: Object){
         return {
-            accessToken: await this.jwtService.signAsync(payload)
+            accessToken: this.jwtService.sign(payload)
         }
     }    
 }

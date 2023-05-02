@@ -9,19 +9,9 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class UsersController {
     constructor(private UsersService: UsersService){ }
 
+    @UseGuards(AuthGuard)
     @Get()
-    users(){
-        return this.UsersService.allUsers()
+    async getUsers(){
+        return await this.UsersService.allUsers()
     }
-
-    // @Post('/reg')
-    // registration(@Body() data:UserCreateDto){
-    //     return this.UsersService.saveUser(data)
-    // }
-
-    // @Post('/login')
-    // login(@Body() data:UserCreateDto){
-    //     console.log(data)
-    //     return this.UsersService.LoginUser(data.login, data.password)
-    // }
 }

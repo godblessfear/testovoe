@@ -4,7 +4,6 @@ import { PrismaClient } from '@prisma/client';
 import {UpdatePostDto} from './dto/update-posts.dto';
 import {PaginationPostDto} from './dto/pagination.dto';
 import {PrismaService} from '../prisma.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 
 @Injectable()
 export class PostsService {
@@ -38,7 +37,6 @@ export class PostsService {
         }
     }
 
-    @UseGuards(JwtAuthGuard)
     async createTenThounds(userId: number){
         try {
             const array = []
@@ -55,8 +53,6 @@ export class PostsService {
             console.log(e)
         }
     }
-
-    @UseGuards(JwtAuthGuard)
     async deleteById(id: number){
         try {
             const post = await this.prisma.post.delete({where: {id: id}})
@@ -66,7 +62,6 @@ export class PostsService {
         }
     }
 
-    @UseGuards(JwtAuthGuard)
     async updateById(id: number, data: UpdatePostDto){
         try {
             return await this.prisma.post.update({where: {id: id}, data: { title: data.title, description: data.description}})
