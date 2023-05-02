@@ -4,6 +4,7 @@ import { PostsService } from './posts.service';
 import {UpdatePostDto} from './dto/update-posts.dto';
 import {PaginationPostDto} from './dto/pagination.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { User } from 'src/decorators/user.decorator';
 
 @UseGuards(AuthGuard)
 @Controller('posts')
@@ -26,8 +27,9 @@ export class PostsController {
     }
 
     @Post('/postup')
-    createTenThounds(@Request() req: any){
-        return this.PostsService.createTenThounds(req.user.id)
+    async createTenThounds(@User() user: object){
+        return user
+        //return this.PostsService.createTenThounds(req.user.id)
     }
 
     @Get(':id')
