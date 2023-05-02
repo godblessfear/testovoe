@@ -11,24 +11,48 @@ export class AuthService {
     constructor(private jwtService: JwtService,
                 private UsersService: UsersService) { }
 
-    async login(data: UserCreateDto){
-        const user = await this.UsersService.validateUser(data.login, data.password)
 
-        return this.generateToken(user)
-    }
+    async signUp(data: UserCreateDto){
+        const IsUser = await this.UsersService.findUser(data.login)
 
-    async registration(data:UserCreateDto){
+        if(IsUser) throw new HttpException('Пользователя с таким login уже существует', HttpStatus.BAD_REQUEST);
+
+        const hashPassword = await this.UsersService.hashPassword(data.password)
+        data = {...data, password: hashPassword}
+
         const user = await this.UsersService.saveUser(data)
+
         
-        if(!user) throw new HttpException('Login уже занят', HttpStatus.BAD_REQUEST);
-        return this.generateToken(user)
+        return true
+        
+
+
     }
+
+    async signIn(data: UserCreateDto){
+        const user = await this.UsersService.findUser(data.login)
+
+        if(!user) throw new HttpException('Пользователя с таким login не существует', HttpStatus.BAD_REQUEST);
+
+        const verifyPassword = this.UsersService.validatePassword(user.password, data.password)
+
+        if(!verifyPassword) throw new HttpException('Пароли не совпадают', HttpStatus.BAD_REQUEST);
+
+        const payload = { id: user.id, login: user.login }
+
+        return this.generateToken(payload)
+    }
+
+    // async registration(data:UserCreateDto){
+    //     const user = await this.UsersService.saveUser(data)
+        
+    //     if(!user) throw new HttpException('Login уже занят', HttpStatus.BAD_REQUEST);
+    //     return this.generateToken(user)
+    // }
 
     private async generateToken(payload: Object){
-        //const payload = {login: user.login, id: user.id}
-
         return {
-            token: this.jwtService.sign(payload)
+            accessToken: await this.jwtService.signAsync(payload)
         }
     }    
 }

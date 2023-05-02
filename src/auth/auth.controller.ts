@@ -14,15 +14,14 @@ export class AuthController {
         private UsersService: UsersService){        
     }
 
-    @Post('/reg')
-    async registration(@Body() data:UserCreateDto){
-        return await this.AuthService.registration(data)
+    @Post('/signup')
+    async signUp(@Body() data:UserCreateDto){
+        return await this.AuthService.signUp(data)
     }
 
-    @Post('/login')
-    login(@Body() data:UserCreateDto){
-        console.log(data)
-        return this.AuthService.login(data)
+    @Post('/signin')
+    async login(@Body() data:UserCreateDto){
+        return await this.AuthService.signIn(data)
     }    
 
 }
