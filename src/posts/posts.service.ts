@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Param, Body } from '@nestjs/common/decorators';
-import { PrismaClient, Post } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import {UpdatePostDto} from './dto/update-posts.dto';
 import {PaginationPostDto} from './dto/pagination.dto';
 import {PrismaService} from '../prisma.service';
@@ -12,27 +12,40 @@ export class PostsService {
     constructor(private prisma: PrismaService) { }
 
     async getAll_p(page: number, limit: number){
-        const skip = limit * (page - 1)
-        return await this.prisma.post.findMany({skip: skip, take: limit})
+        try {
+            const skip = limit * (page - 1)
+            return await this.prisma.post.findMany({skip: skip, take: limit})
+        } catch (error) {
+            
+        }
     }
 
     async getAll(){
-        return await this.prisma.post.findMany()
+        try {
+            return await this.prisma.post.findMany()
+        } catch (error) {
+            
+        }
+        
     }
 
     async getById(id: number){
-        return await this.prisma.post.findMany({ where: {id: id}})
+        try {
+            return await this.prisma.post.findMany({ where: {id: id}})
+        } catch (error) {
+            
+        }
     }
 
-    async createTenThounds(){
+    async createTenThounds(userId: number){
         try {
             const array = []
             for(let i = 1; i <= 10000; i++){
-                const container = {
+                array.push({
                     title: `Title num: ${i}`,
                     description: `description num: ${i}`,
-                };
-                array.push(container);
+                    authorId: userId
+                });
             }
             await this.prisma.post.createMany({data: array})
             return 'Done';

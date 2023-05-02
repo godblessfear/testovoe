@@ -1,10 +1,11 @@
 import { Controller, Post,Get, Put, Delete } from '@nestjs/common';
-import { Param, Body } from '@nestjs/common/decorators';
+import { Param, Body, UseGuards, Request } from '@nestjs/common/decorators';
 import { PostsService } from './posts.service';
 import {UpdatePostDto} from './dto/update-posts.dto';
 import {PaginationPostDto} from './dto/pagination.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
-
+@UseGuards(AuthGuard)
 @Controller('posts')
 export class PostsController {
 
@@ -25,8 +26,8 @@ export class PostsController {
     }
 
     @Post('/postup')
-    createTenThounds(){
-        return this.PostsService.createTenThounds()
+    createTenThounds(@Request() req: any){
+        return this.PostsService.createTenThounds(req.user.id)
     }
 
     @Get(':id')
