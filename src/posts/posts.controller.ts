@@ -28,7 +28,7 @@ export class PostsController {
 
     @UseGuards(AuthGuard)
     @Post('/postup')
-    async createTenThounds(@User() user: object){
+    async createTenThounds(@User() user){
         return this.PostsService.createTenThounds(user.id)
     }
 
