@@ -5,6 +5,7 @@ import { PrismaService } from './prisma.service';
 import { PostsModule } from './posts/posts.module';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 // import * as bcrypt from 'bcrypt';
 
@@ -20,6 +21,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     PostsModule,
     AuthModule,
+    UsersModule,
     // CUSTOM MODULE IMPORT
     // ...
   ],
