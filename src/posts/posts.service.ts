@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Param, Body, UseGuards } from '@nestjs/common/decorators';
 import { PrismaClient } from '@prisma/client';
 import {UpdatePostDto} from './dto/update-posts.dto';
-import {PaginationPostDto} from './dto/pagination.dto';
 import {PrismaService} from '../prisma.service';
 
 @Injectable()

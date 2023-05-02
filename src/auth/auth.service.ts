@@ -12,7 +12,7 @@ export class AuthService {
                 private UsersService: UsersService) { }
 
 
-    async signUp(data: UserCreateDto){
+    async signUp(data: UserCreateDto): Promise<boolean>{
         const IsUser = await this.UsersService.findUser(data.login)
 
         if(IsUser) throw new HttpException('Пользователя с таким login уже существует', HttpStatus.BAD_REQUEST);
@@ -24,9 +24,6 @@ export class AuthService {
 
         
         return true
-        
-
-
     }
 
     async signIn(data: UserCreateDto){
@@ -42,13 +39,6 @@ export class AuthService {
 
         return this.generateToken(payload)
     }
-
-    // async registration(data:UserCreateDto){
-    //     const user = await this.UsersService.saveUser(data)
-        
-    //     if(!user) throw new HttpException('Login уже занят', HttpStatus.BAD_REQUEST);
-    //     return this.generateToken(user)
-    // }
 
     private async generateToken(payload: Object){
         return {
