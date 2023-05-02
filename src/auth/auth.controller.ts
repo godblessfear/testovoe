@@ -15,8 +15,8 @@ export class AuthController {
     }
 
     @Post('/reg')
-    registration(@Body() data:UserCreateDto){
-        return this.AuthService.registration(data)
+    async registration(@Body() data:UserCreateDto){
+        return await this.AuthService.registration(data)
     }
 
     @Post('/login')
