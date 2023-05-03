@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt/dist';
 import { UsersService } from 'src/users/users.service';
 import { UserCreateDto } from 'src/users/dto/user-create.dto';
+import fastifyCookie from '@fastify/cookie';
 
 
 @Injectable()
@@ -11,38 +12,48 @@ export class AuthService {
     constructor(private jwtService: JwtService,
                 private UsersService: UsersService) { }
 
+    async login(data: UserCreateDto){
+        const user = await this.UsersService.findUserEmail(data.email)
 
-    async signUp(data: UserCreateDto): Promise<boolean>{
-        const IsUser = await this.UsersService.findUser(data.login)
+        if(!user) throw new HttpException('Пользователь с такой почтой уже существует', HttpStatus.BAD_REQUEST);
 
-        if(IsUser) throw new HttpException('Пользователя с таким login уже существует', HttpStatus.BAD_REQUEST);
+        const validPassword = await this.UsersService.validatePassword(data.password, user.password)
 
-        const hashPassword = await this.UsersService.hashPassword(data.password)
-        data = {...data, password: hashPassword}
+        if(!validPassword) throw new HttpException('Пароли не совпадают', HttpStatus.BAD_REQUEST);
 
+        const token = await this.generateTokens({userId: user.id, email: user.email, role: user.role})
+
+        this.UsersService.updateRefreshToken(user.id , token.refreshToken)
+        return token.accessToken
+    }
+
+    // async login(data: UserCreateDto){
+    //     const user = await this.UsersService.validateUser(data.login, data.password)
+    //     return await this.generateToken(user)
+    // }
+
+    async registration(data:UserCreateDto){
         const user = await this.UsersService.saveUser(data)
-
         
-        return true
+        if(!user) throw new HttpException('Email уже занят', HttpStatus.BAD_REQUEST);
+        //const token = await this.generateTokens(user)
+
+        //this.UsersService.updateRefreshToken(user.id , token.refreshToken)
+        return user
     }
 
-    async signIn(data: UserCreateDto){
-        const user = await this.UsersService.findUser(data.login)
-
-        if(!user) throw new HttpException('Пользователя с таким login не существует', HttpStatus.BAD_REQUEST);
-
-        const verifyPassword = this.UsersService.validatePassword(user.password, data.password)
-
-        if(!verifyPassword) throw new HttpException('Пароли не совпадают', HttpStatus.BAD_REQUEST);
-
-        const payload = { id: user.id, login: user.login }
-
-        return this.generateToken(payload)
-    }
-
-    private async generateToken(payload: Object){
+    private async generateTokens(payload){
+        //const payload = {email: user.email, id: user.id}
         return {
-            accessToken: this.jwtService.sign(payload)
+            accessToken: this.jwtService.sign(payload),
+            refreshToken: this.getRefreshToken(payload.userId)
         }
-    }    
+    }
+
+    private getRefreshToken(sub: string): string {
+        return this.jwtService.sign({ sub }, {
+          secret: process.env.JWTREFRESH_SECRET, //
+          expiresIn: '30d', 
+        });
+      }
 }

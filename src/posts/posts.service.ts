@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { Param, Body, UseGuards } from '@nestjs/common/decorators';
-import { PrismaClient } from '@prisma/client';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Param, Body } from '@nestjs/common/decorators';
+import { Post, PrismaClient } from '@prisma/client';
 import {UpdatePostDto} from './dto/update-posts.dto';
+import {PaginationPostDto} from './dto/pagination.dto';
 import {PrismaService} from '../prisma.service';
+import { take } from 'rxjs';
 
 @Injectable()
 export class PostsService {
@@ -10,16 +12,34 @@ export class PostsService {
 
     constructor(private prisma: PrismaService) { }
 
-    async getAll_p(page: number, limit: number){
+    async getAll_p(skip: number, take: number): Promise<Post[]>{
         try {
-            const skip = limit * (page - 1)
-            return await this.prisma.post.findMany({skip: skip, take: limit})
+            return await this.prisma.post.findMany({skip, take})
         } catch (error) {
             
         }
     }
 
-    async getAll(){
+    async getUserPosts(userId: number): Promise<object>{
+        const data = await this.prisma.user.findMany({
+            select: {
+              _count: {
+                select: { posts: true },
+              },
+              posts: {
+                take: 20
+              }
+            },
+            where: {id: userId},
+          })
+
+        return {
+            data: data[0].posts,
+            total: data[0]._count.posts
+        }
+    }
+
+    async getAll(): Promise<Post[]>{
         try {
             return await this.prisma.post.findMany()
         } catch (error) {
@@ -28,17 +48,16 @@ export class PostsService {
         
     }
 
-    async getById(id: number){
+    async getById(id: number): Promise<Post>{
         try {
-            return await this.prisma.post.findMany({ where: {id: id}})
+            return await this.prisma.post.findFirst({ where: {id: id}})
         } catch (error) {
             
         }
     }
 
-    async createTenThounds(userId: number){
-        try {
-            const array = []
+    async createTenThounds(userId: number): Promise<boolean>{
+        const array = []
             for(let i = 1; i <= 10000; i++){
                 array.push({
                     title: `Title num: ${i}`,
@@ -46,13 +65,15 @@ export class PostsService {
                     authorId: userId
                 });
             }
+        try {
             await this.prisma.post.createMany({data: array})
-            return 'Done';
+            return true;
         } catch (e) {
             console.log(e)
         }
     }
-    async deleteById(id: number){
+
+    async deleteById(id: number): Promise<string>{
         try {
             const post = await this.prisma.post.delete({where: {id: id}})
             return `Deleted post #${post.id}`
@@ -61,9 +82,9 @@ export class PostsService {
         }
     }
 
-    async updateById(id: number, data: UpdatePostDto){
+    async updateById(id: number, data: UpdatePostDto): Promise<Post>{
         try {
-            return await this.prisma.post.update({where: {id: id}, data: { title: data.title, description: data.description}})
+            return await this.prisma.post.update({where: {id: id}, data})
         } catch (e) {
             console.log(e)
         }
