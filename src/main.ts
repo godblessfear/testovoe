@@ -28,7 +28,7 @@ const bootstrap = async () => {
     methods: '*',
   });
   await app.register(fastifyCookie, { secret: 'my-secret' });
-  await app.register(fastifyCsrf, { cookieOpts: { signed: true } });
+  //await app.register(fastifyCsrf, { cookieOpts: { signed: true } });
   await app.register(fastifyHelmet);
   await app.register(compression, {
     encodings: ['gzip', 'deflate'],

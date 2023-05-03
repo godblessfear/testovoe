@@ -10,10 +10,12 @@ datasource db {
 
 model User {
   id    Int     @id @default(autoincrement())
-  email String?  @unique
-  login  String @unique
+  email String  @unique
+  name  String? @unique
   password String
   posts Post[]
+  refreshToken String? @unique
+  role ROLE  @default(USER)
 }
 
 model Post {
@@ -24,4 +26,10 @@ model Post {
   updatedAt   DateTime @updatedAt
   author   User @relation(fields: [authorId], references: [id])
   authorId Int
+}
+
+enum ROLE {
+  USER
+  EDITOR
+  ADMIN
 }
